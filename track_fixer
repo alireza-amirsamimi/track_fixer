@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# this script adds zero at the start of music tracks 1>>01 .. 9>>09
+
+# clear the screen
+clear
+
+# change IFS
+IFS=$'\n'
+
+folder_path="$1"
+
+echo -e "Directory = $folder_path\n"
+
+echo -e "Be patient...!\n"
+
+# find all mp3 files in folder_path
+audio_files=(`find "$folder_path" -name "*.mp3" 2>/dev/null`)
+
+# print number of detected files
+number=${#audio_files[@]}
+echo -e "$number mp3 files are detected!\n"
+
+for ((i=0;i < $number;i++));do
+
+    file=${audio_files[i]}
+
+    # find base name
+    track=`basename $file`
+
+
+    # check first two character of track's name
+    first_two_chars=${track:0:2}
+
+    # Is it integer?
+    if ! [[ $first_two_chars =~ ^-?[0-9]+$ ]];then
+
+        # find first character
+        first_char=${track:0:1}
+
+        # Is it 1-9?
+        if [[ $first_char =~ ^-?[0-9]+$ ]];then
+
+            # add zero at start of the file name
+            # find file path
+            track_path=`dirname "$file"`
+
+            # add zero at the start of the file name
+            new_base_name="0$track"
+
+            # new file path
+            new_name="$track_path/$new_base_name"
+            
+            # rename the file
+            mv "$file" "$new_name"
+
+            # notify user if moving was successful.
+            if [[ "$?" == "0" ]];then
+                echo "$file is renamed to $new_name"
+            else
+                echo "Error: $file"
+            fi
+        fi
+       
+
+    fi
+
+done
